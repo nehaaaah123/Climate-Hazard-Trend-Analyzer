@@ -2,7 +2,7 @@
  * API client module for Climate Hazard Trend Analyzer.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 export async function fetchRegions() {
   const response = await fetch(`${API_BASE_URL}/api/v1/regions`);
