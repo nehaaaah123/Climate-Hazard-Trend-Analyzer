@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: climate_analyzer_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - climate_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: climate_analyzer_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB_NAME=climate_analyzer
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:3000
+      - OPEN_METEO_BASE_URL=https://archive-api.open-meteo.com/v1/archive
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - climate_net
+
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  climate_net:
+    driver: bridge

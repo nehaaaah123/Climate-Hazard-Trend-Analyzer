@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: climate-hazard-analyzer-api
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r backend/requirements.txt"
+    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: MONGODB_URI
+        sync: false # Set to MongoDB Atlas connection string in Render Dashboard
+      - key: MONGODB_DB_NAME
+        value: climate_analyzer
+      - key: CORS_ORIGINS
+        value: "https://your-frontend.vercel.app,http://localhost:5173"
+      - key: OPEN_METEO_BASE_URL
+        value: "https://archive-api.open-meteo.com/v1/archive"
